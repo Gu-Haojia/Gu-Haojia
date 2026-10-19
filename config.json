@@ -1,0 +1,101 @@
+{
+  "github": "Gu-Haojia",
+  "nickname": "Lisianthus",
+  "card_title": "闪耀编码者",
+  "tags": [
+    "AI Agent",
+    "开源工具",
+    "交互实验"
+  ],
+  "greeting": [
+    "把喜欢的事，",
+    "一点一点变成作品。"
+  ],
+  "tagline": [
+    "Code.",
+    "Create.",
+    "Cherish."
+  ],
+  "produce_label": "个人创作 · 作品",
+  "timezone_offset": 8,
+  "backgrounds": {
+    "home": "003",
+    "produce": "001"
+  },
+  "languages": {
+    "exclude": [
+      "Jupyter Notebook"
+    ],
+    "size_weight": 0.5,
+    "count_weight": 0.5
+  },
+  "skills": [
+    {
+      "name": "AI 应用",
+      "param": "Vo",
+      "icons": [
+        "python",
+        "android",
+        "docker",
+        "git"
+      ]
+    },
+    {
+      "name": "Web 与脚本",
+      "param": "Da",
+      "icons": [
+        "javascript",
+        "html5",
+        "css3",
+        "tampermonkey"
+      ]
+    },
+    {
+      "name": "数据与模型",
+      "param": "Vi",
+      "icons": [
+        "jupyter"
+      ],
+      "tags": [
+        "LSTM",
+        "CNN",
+        "SVR"
+      ]
+    },
+    {
+      "name": "经典与底层",
+      "param": "Me",
+      "icons": [
+        "cplusplus",
+        "c",
+        "openjdk",
+        "qt"
+      ]
+    }
+  ],
+  "about_title": "用代码，创造[闪耀]的每一天",
+  "about": [
+    {
+      "icon": "heart-fill",
+      "text": "闪耀色彩 P，相信代码也能[闪闪发光]"
+    },
+    {
+      "icon": "python",
+      "text": "主力 [Python]：QQ AI Agent、Replive 资源备份、推文渲染、煤炉上新监控"
+    },
+    {
+      "icon": "android",
+      "text": "在做本地优先的角色对话 / 互动小说 Android 应用 [lantale]"
+    },
+    {
+      "icon": "tampermonkey",
+      "text": "偶尔写 [Tampermonkey] 脚本（新干线随行）和网页小游戏"
+    },
+    {
+      "icon": "jupyter",
+      "text": "做过心电图 QRS 检测、锂电池 RUL 预测、PL/0 编译器"
+    }
+  ],
+  "speaks": "中文 · 日语 · 英语",
+  "projects_file": "projects.json"
+}

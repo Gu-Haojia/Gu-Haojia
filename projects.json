@@ -1,0 +1,37 @@
+{
+  "home_recommendation": "Ai_Agent",
+  "items": [
+    {
+      "repo": "Ai_Agent",
+      "title": "Ai_Agent",
+      "description": null,
+      "language": null,
+      "color": "blue",
+      "show_on_projects": true
+    },
+    {
+      "repo": "RepArchive",
+      "title": "RepArchive",
+      "description": null,
+      "language": null,
+      "color": "pink",
+      "show_on_projects": true
+    },
+    {
+      "repo": "XMonitor",
+      "title": "XMonitor",
+      "description": null,
+      "language": null,
+      "color": "orange",
+      "show_on_projects": true
+    },
+    {
+      "repo": "lantale",
+      "title": "lantale",
+      "description": null,
+      "language": null,
+      "color": "yellow",
+      "show_on_projects": true
+    }
+  ]
+}

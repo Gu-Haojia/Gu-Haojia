@@ -1,0 +1,40 @@
+name: ✦ Shiny Refresh
+
+on:
+  schedule:
+    - cron: "0 16 * * *"   # 每天北京时间 00:00
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [config.json, projects.json, build.py, requirements.txt, 'assets/game/**', 'assets/fonts/**', 'assets/illustrations/**', data/icons.json, 'tests/**', .github/workflows/shiny-refresh.yml]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: shiny-profile-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pip install --quiet -r requirements.txt
+          python -m unittest discover -s tests -v
+          python build.py --strict-refresh
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets README.md data
+          git diff --staged --quiet || git commit -m "✦ daily shiny refresh"
+          git push
