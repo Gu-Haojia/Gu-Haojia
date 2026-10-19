@@ -64,7 +64,7 @@ Preserve all 1024x1536 canvas coordinates and the existing transparent alpha sil
 | --- | --- |
 | 操作提示 | 按钮、当前日期、图表端点统一 3.2 秒轻脉冲 |
 | 气泡 | 4.2 秒、4.5px 小幅悬浮，错开相位 |
-| 人物 | 4.6 秒、整张立绘上下平移 10px；人物比例保持不变，底部由前景桌面遮挡 |
+| 人物 | 4.6 秒、整张立绘上下平移 5px；人物比例保持不变，底部由前景桌面遮挡 |
 | 环境 | 三缕淡蒸汽错相上升，少量四角光点缓慢闪烁 |
 | 卡片与信息条 | 6.4 秒的低强度掠光；制作人详情卡面也有斜向反光，限于照片卡面内，卡片主体保持稳定 |
 | 贡献图 | 完整底线、面积和数据点始终可见；上层强调线每 6.4 秒重播，3.2 秒描完整条线，再停留、淡出；光点同步跟随描线 |
@@ -74,15 +74,15 @@ Preserve all 1024x1536 canvas coordinates and the existing transparent alpha sil
 
 背景保留放大比例与慢移周期：首页 1.22 倍 / 48 秒，位移从 34×12px 微增至 44×16px；培育页 1.3 倍 / 44 秒，位移从 24×6px 微增至 32×8px。跑光边框、环绕光点和大片粒子已撤掉。
 
-所有效果均写入自包含 SVG，README 仍只使用一个 img 标签，不需要网页脚本。最终 SVG 约 2.81 MiB。实际已验证本地浏览器的 img 嵌入渲染，尚未上传到 GitHub 验证线上缓存。
+所有效果均写入自包含 SVG，README 仍只使用一个 img 标签，不需要网页脚本。最终 SVG 约 2.81 MiB。实际已验证本地浏览器的 img 嵌入渲染，已部署到 GitHub 个人主页并核对线上图片显示。
 
 ## 验证
 
 - 使用现有 GitHub 数据缓存离线构建，未刷新贡献数字。
-- 15 项测试通过：包括透视几何、SVG 自包含与时间轴、正文不循环清空、图表底线常驻，以及项目配置、元数据覆盖、自动扩行和无效配置保留旧页。另完成真实监听进程的配置变更与错误恢复验证。
+- 17 项测试通过：包括透视几何、SVG 自包含与时间轴、正文不循环清空、图表底线常驻，以及项目配置、元数据覆盖、自动扩行和无效配置保留旧页。另完成真实监听进程的配置变更与错误恢复验证。
 - 浏览器以 1136px 原始画布及完整 README 预览核对布局。
 - 两帧对比确认人物和蒸汽有变化、底部操作文字保持稳定。
-- 修改保存在本地项目，未推送或部署。
+- 已部署至 Gu-Haojia/Gu-Haojia，后续自动刷新配置见 DEPLOYMENT.md。
 
 重新构建：`python build.py --offline`（需要 pillow、fonttools、brotli）。
 测试：`python -m unittest discover -s tests -v`。
@@ -94,4 +94,3 @@ Preserve all 1024x1536 canvas coordinates and the existing transparent alpha sil
 浏览器验证先加载整张主页，经过首轮时间后再滚到图表；两帧对比确认描线继续变化，日期刻度和统计文字保持稳定。新增回归用例在修改前失败、修改后通过。
 
 这仍然是自动循环，不是进入视口触发。README 采用一个 img 嵌入 SVG，SVG 图片中的 JavaScript 受到禁用限制，无法在图片内部监听外层页面滚动；参见 [MDN 的 SVG 图片限制](https://developer.mozilla.org/en-US/docs/Web/SVG/Guides/SVG_as_an_image#restrictions)。
-

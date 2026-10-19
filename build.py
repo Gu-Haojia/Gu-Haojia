@@ -409,7 +409,7 @@ def hana_coding(y):
                            f'href="data:image/webp;base64,{data}"/>')
     # 从电脑贴合桌沿的位置向下缓移，底部仍被前景桌面遮挡，避免露出悬空间隙。
     return (f'<g id="hana-coding" transform="translate(0 {y+543})"><g>'
-            + animT("translate", "0 0;0 10;0 0", MOTION["breath"])
+            + animT("translate", "0 0;0 5;0 0", MOTION["breath"])
             + '<use href="#hanaArtwork" transform="translate(354 -467) scale(.419921875)"/></g></g>')
 
 
