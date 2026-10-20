@@ -1004,6 +1004,7 @@ def derive(cfg, st):
         name, commit = max(commits, key=lambda pair: (dt.datetime.fromisoformat(pair[1]['at'].replace('Z', '+00:00')), pair[0]))
         at = dt.datetime.fromisoformat(commit['at'].replace('Z', '+00:00')).astimezone(tz)
         latest_project = {'repo': name, 'name': name, 'stars': meta[name][0], 'lang': meta[name][1],
+                          'fresh': (now - at).days < 7,
                           'commit_sha': commit['sha'], 'commit_message': ' '.join((commit.get('message') or '').split()),
                           'commit_url': commit.get('url') or '', 'commit_at': commit['at'],
                           'commit_time': f"{ago(commit['at'])} {at:%H:%M}"}
@@ -1145,17 +1146,15 @@ def home(cfg, st, d):
     top = d["latest_project"]
     if top:
         fx, fy, fw, fh = 772, 340, 350, 100
-        slug = LANG_SLUG.get(top['lang'] or '')
         o.append('<g id="latest-project"><title>' + esc(f"{top['name']} · 最近提交 {top['commit_time']}") + '</title>'
                  + R(fx, fy + 4, fw, fh, 12, "#1A1433", extra=' opacity=".28"') + R(fx, fy, fw, fh, 12, "#fff", "#8E84A0", 1.5)
                  + R(fx + 16, fy - 13, 108, 28, 14, lg([(0, "#FF8FC8"), (1, "#F2559A")]), "#fff", 2)
                  + T(fx + 70, fy + 6, "最新项目", 15, "#fff", "h", "middle")
-                 + T(fx + 20, fy + 42, top["name"], 30, TITLE, "h", w=fw - 40)
-                 + (brand(slug, fx + 28, fy + 61, 16) if slug else '')
-                 + T(fx + (42 if slug else 20), fy + 65, top['lang'] or '', 13, TEXT, 'u', w=180)
-                 + item('coin', fx + fw - 65, fy + 61, 22)
-                 + T(fx + fw - 20, fy + 65, f"× {top['stars'] if top['stars'] is not None else '—'}", 13, TEXT, 'u', 'end', w=32)
-                 + T(fx + 20, fy + 88, f"最近提交 · {top['commit_time']}", 12.5, SUB, 'u', w=fw - 40) + '</g>')
+                 + T(fx + 20, fy + 53, top["name"], 32, TITLE, "h", w=fw - 40)
+                 + T(fx + 20, fy + 83, f"最近提交 · {top['commit_time']}", 13, SUB, 'u', w=fw - 115)
+                 + item('coin', fx + fw - 65, fy + 78, 24)
+                 + T(fx + fw - 20, fy + 83, f"× {top['stars'] if top['stars'] is not None else '—'}", 14, TEXT, 'u', 'end', w=32)
+                 + (new_tag(fx + fw - 82, fy + 4, 20) if top['fresh'] else '') + '</g>')
 
     # ── 右下：原生 Produce 按钮 + 任务按钮（按原图尺寸显示，避免放大发糊） ──
     pcx, pcy, ps = 1032, 576, 148

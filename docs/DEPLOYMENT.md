@@ -20,7 +20,7 @@ GitHub Actions 工作流 `✦ Shiny Refresh` 已启用，使用 GitHub 托管的
 3. 临时刷新数据可在 Actions → ✦ Shiny Refresh → Run workflow 中运行，分支选择 main。
 4. 失败时打开对应运行记录的 Build / Commit 步骤查看错误。
 
-其他仓库的提交在下一次已有构建运行时刷新到首页，不额外触发本仓库。卡片只展示项目、语言、Star 和提交时间，不展示摘要或短 SHA。README 图片 URL 包含内容哈希，构建产生新图时同步更新。
+其他仓库的提交在下一次已有构建运行时刷新到首页，不额外触发本仓库。卡片展示项目、Star 和提交时间，近 7 天有提交时显示 NEW!!；不展示语言标记、摘要或短 SHA。README 图片 URL 包含内容哈希，构建产生新图时同步更新。
 
 本地克隆后可用 `python build.py --offline --watch` 预览配置修改，或 `python build.py --strict-refresh` 执行一次联网刷新。详细配置字段见 CONFIGURATION.md。
 

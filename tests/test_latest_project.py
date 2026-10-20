@@ -4,6 +4,7 @@ import io
 import json
 import tempfile
 import unittest
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from unittest.mock import patch
 
@@ -46,7 +47,11 @@ class LatestProjectTests(unittest.TestCase):
 
     def test_home_shows_commit_time_without_summary_or_sha(self):
         d = build.derive(self.cfg, self.stats)
+        d['latest_project']['fresh'] = True
         svg, _ = build.home(self.cfg, self.stats, d)
+        card = ET.tostring(ET.fromstring('<svg>' + svg + '</svg>').find(".//*[@id='latest-project']"), encoding='unicode')
+        self.assertIn('NEW!!', card)
+        self.assertNotIn('Python', card)
         self.assertIn('最新项目', svg)
         self.assertIn(d['latest_project']['commit_time'], svg)
         self.assertNotIn('bbbbbbb', svg)
