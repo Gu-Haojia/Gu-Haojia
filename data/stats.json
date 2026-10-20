@@ -2,10 +2,10 @@
  "followers": 4,
  "repos": 33,
  "stars": 25,
- "last_push": "2026-10-20T09:46:25Z",
- "commits": 752,
- "contrib_year": 571,
- "contrib_all": 1102,
+ "last_push": "2026-10-20T10:48:06Z",
+ "commits": 756,
+ "contrib_year": 575,
+ "contrib_all": 1106,
  "days": [
   [
    "2025-10-19",
@@ -1473,7 +1473,7 @@
   ],
   [
    "2026-10-20",
-   9
+   13
   ]
  ],
  "langs_source": "graphql",
@@ -1483,7 +1483,7 @@
    3
   ],
   "Python": [
-   2553760,
+   2571896,
    12
   ],
   "QMake": [
@@ -1640,7 +1640,7 @@
    0,
    "Python",
    "✦ Shiny Colors 风格 GitHub 个人主页模板 · 动画 SVG · 自动统计与每日更新 · 无需服务器",
-   "2026-10-20T09:46:25Z"
+   "2026-10-20T10:48:06Z"
   ],
   "StateSimplify": [
    1,
@@ -1823,13 +1823,13 @@
    "branch": "main"
   },
   "shinycolors-profile-template": {
-   "sha": "9f8ee1bf2bba5c03f2b5fb2a928e4e42844a424b",
-   "at": "2026-10-20T09:46:19Z",
-   "message": "docs: keep MIT license text standard with scope in notices",
-   "url": "https://github.com/Gu-Haojia/shinycolors-profile-template/commit/9f8ee1bf2bba5c03f2b5fb2a928e4e42844a424b",
+   "sha": "634d5d2f1aaec47597e2f5a84b2edc3b5eda1473",
+   "at": "2026-10-20T10:48:04Z",
+   "message": "Remove old Hana from template and show all 28 characters in README",
+   "url": "https://github.com/Gu-Haojia/shinycolors-profile-template/commit/634d5d2f1aaec47597e2f5a84b2edc3b5eda1473",
    "branch": "main"
   }
  },
- "contrib_rolling_year": 781,
+ "contrib_rolling_year": 785,
  "contribution_year": 2026
 }
