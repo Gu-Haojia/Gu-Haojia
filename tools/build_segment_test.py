@@ -117,6 +117,12 @@ def main(source_path=SOURCE):
         svg = copy.deepcopy(original)
         svg.set("viewBox", f"0 {top} 1136 {bottom - top}")
         svg.set("height", str(bottom - top))
+        # The HTML image retains this intrinsic aspect ratio. WebKit may round
+        # its internal SVG viewport to integer pixels: default 'meet' can then
+        # introduce a different horizontal inset for each section. Fill that
+        # viewport so every segment shares the same left and right edges.
+        svg.set("preserveAspectRatio", "none")
+        svg.set("overflow", "hidden")
         svg.set("aria-label", f"Lisianthus · {title}")
         svg.find(f"{{{NS}}}title").text = f"Lisianthus · {title}"
         body = svg.find(f"{{{NS}}}g")
@@ -141,8 +147,8 @@ def main(source_path=SOURCE):
         animations = [ET.tostring(e) for e in svg.iter() if tag(e) in ANIMATION]
         all_animations.extend(animations)
         payload = ET.tostring(svg, encoding="utf-8", xml_declaration=True)
-        (OUT / f"{name}.svg").write_bytes(payload)
-        manifest["sections"].append({"file": f"{name}.svg", "title": title,
+        (OUT / f"{name}-v2.svg").write_bytes(payload)
+        manifest["sections"].append({"file": f"{name}-v2.svg", "title": title,
                                      "y": top, "height": bottom-top,
                                      "body_range": [lo, hi], "bytes": len(payload),
                                      "animations": len(animations),
@@ -153,12 +159,14 @@ def main(source_path=SOURCE):
     manifest["total_bytes"] = sum(s["bytes"] for s in manifest["sections"])
     manifest["total_animations"] = len(all_animations)
     (OUT / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
-    images = "".join(f'<img src="assets/mobile-segment-test/{s["file"]}?v=segments-1" width="100%" align="top" alt="{s["title"]}"/>' for s in manifest["sections"])
+    images = "".join(f'<img src="assets/mobile-segment-test/{s["file"]}" width="100%" align="top" alt="{s["title"]}"/>' for s in manifest["sections"])
     markdown = f'''# 手机分段渲染测试
 
 [打开同一份数据的原版长图对照](https://github.com/Gu-Haojia/Gu-Haojia/blob/{SOURCE_COMMIT}/README.md)
 
 此页把原图拆成 7 张独立 SVG，保留底纹、文字、人物及动画参数。请用同一个手机浏览器分别停留首页、培育、任务，再上下滚动比较流畅度、发热和拼接处。测试快照：2026-10-21；本页不会每日更新。
+
+版本 v2：修正 Safari 分段边缘对齐，图片使用新文件名以避开旧缓存。
 
 <p align="center">{images}</p>
 
