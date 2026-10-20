@@ -15,7 +15,7 @@ GitHub Actions 工作流 `✦ Shiny Refresh` 已启用，使用 GitHub 托管的
 
 ## 手动更新与日常维护
 
-1. 修改 `projects.json` 的 `items` 管理项目页；首页最新项目独立读取默认分支的实际提交时间，并排除主页仓库；修改 `config.json` 管理其他文字、技能与背景。
+1. 修改 `projects.json` 的 `items` 管理项目页；首页最新项目与培育页“正在培育”共用默认分支最新提交，并排除主页仓库；修改 `config.json` 管理其他文字、技能与背景。
 2. 提交并推送到 main，相关配置、代码和素材变更会自动触发构建。
 3. 临时刷新数据可在 Actions → ✦ Shiny Refresh → Run workflow 中运行，分支选择 main。
 4. 失败时打开对应运行记录的 Build / Commit 步骤查看错误。
