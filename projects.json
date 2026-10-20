@@ -2,8 +2,8 @@
   "home_recommendation": "Ai_Agent",
   "items": [
     {
-      "repo": "Ai_Agent",
-      "title": "Ai_Agent",
+      "repo": "buo-dojo",
+      "title": "法螺贝道场",
       "description": null,
       "language": null,
       "color": "blue",
@@ -18,8 +18,8 @@
       "show_on_projects": true
     },
     {
-      "repo": "XMonitor",
-      "title": "XMonitor",
+      "repo": "shinkansen-follow",
+      "title": "新干线随行",
       "description": null,
       "language": null,
       "color": "orange",
@@ -27,7 +27,7 @@
     },
     {
       "repo": "lantale",
-      "title": "lantale",
+      "title": "Lantale",
       "description": null,
       "language": null,
       "color": "yellow",
