@@ -353,11 +353,11 @@
   ],
   [
    "2026-01-13",
-   1
+   0
   ],
   [
    "2026-01-14",
-   5
+   6
   ],
   [
    "2026-01-15",
@@ -1409,11 +1409,11 @@
   ],
   [
    "2026-10-04",
-   1
+   0
   ],
   [
    "2026-10-05",
-   5
+   6
   ],
   [
    "2026-10-06",
@@ -1465,11 +1465,11 @@
   ],
   [
    "2026-10-18",
-   1
+   0
   ],
   [
    "2026-10-19",
-   2
+   3
   ],
   [
    "2026-10-20",
@@ -1667,5 +1667,154 @@
  "last_commit": {
   "repo": "Ai_Agent",
   "at": "2026-10-14T13:34:26Z"
+ },
+ "repo_commits": {
+  "Intro": {
+   "sha": "a7dd5683b1448052bc1c0de63d16f8798e18c288",
+   "at": "2024-04-01T13:46:40Z",
+   "message": "Update README.md",
+   "url": "https://github.com/Gu-Haojia/Intro/commit/a7dd5683b1448052bc1c0de63d16f8798e18c288",
+   "branch": "main"
+  },
+  "ASM-Code": {
+   "sha": "aafbba9cd704912d15e4a448c1d9b420151334f8",
+   "at": "2021-10-15T08:27:44Z",
+   "message": "DEBUG",
+   "url": "https://github.com/Gu-Haojia/ASM-Code/commit/aafbba9cd704912d15e4a448c1d9b420151334f8",
+   "branch": "master"
+  },
+  "LSTM": {
+   "sha": "12089f8bbc09eaaaa73b5bfffc4b8005163978d5",
+   "at": "2021-10-08T13:48:53Z",
+   "message": "Create README.md",
+   "url": "https://github.com/Gu-Haojia/LSTM/commit/12089f8bbc09eaaaa73b5bfffc4b8005163978d5",
+   "branch": "master"
+  },
+  "SVR": {
+   "sha": "307982dd47e878ed2c77ecb1fb78663da7ca490c",
+   "at": "2021-10-08T13:59:40Z",
+   "message": "Create README.md",
+   "url": "https://github.com/Gu-Haojia/SVR/commit/307982dd47e878ed2c77ecb1fb78663da7ca490c",
+   "branch": "master"
+  },
+  "Normal-Distribution": {
+   "sha": "f0d3e75661e7916cabdc1a7761ae8f7c4a35e832",
+   "at": "2021-10-09T06:45:10Z",
+   "message": "Create README.md",
+   "url": "https://github.com/Gu-Haojia/Normal-Distribution/commit/f0d3e75661e7916cabdc1a7761ae8f7c4a35e832",
+   "branch": "master"
+  },
+  "StateSimplify": {
+   "sha": "09af5510168d3eb757d626ad87712c4986a9c82e",
+   "at": "2021-10-09T07:07:54Z",
+   "message": "Create README.md",
+   "url": "https://github.com/Gu-Haojia/StateSimplify/commit/09af5510168d3eb757d626ad87712c4986a9c82e",
+   "branch": "master"
+  },
+  "JavaExercise": {
+   "sha": "4856f4a7a2b431fa079d726f7e7e2023f4aaaf38",
+   "at": "2021-10-09T09:11:37Z",
+   "message": "Create README.md",
+   "url": "https://github.com/Gu-Haojia/JavaExercise/commit/4856f4a7a2b431fa079d726f7e7e2023f4aaaf38",
+   "branch": "master"
+  },
+  "Compilers-Principles": {
+   "sha": "c968626f5131ee17b43414d736e13f68294ed697",
+   "at": "2021-10-17T07:34:43Z",
+   "message": "Update README.md",
+   "url": "https://github.com/Gu-Haojia/Compilers-Principles/commit/c968626f5131ee17b43414d736e13f68294ed697",
+   "branch": "master"
+  },
+  "UnitTest": {
+   "sha": "4dfbca162f7ccaeef691313f50b433713cdefc05",
+   "at": "2021-11-18T07:13:17Z",
+   "message": "Merge remote-tracking branch 'origin/master'",
+   "url": "https://github.com/Gu-Haojia/UnitTest/commit/4dfbca162f7ccaeef691313f50b433713cdefc05",
+   "branch": "master"
+  },
+  "CodeCover": {
+   "sha": "d29111e11ec6ba421c74813fcf1261243b9e6ae3",
+   "at": "2021-11-24T11:29:30Z",
+   "message": "Update README.md",
+   "url": "https://github.com/Gu-Haojia/CodeCover/commit/d29111e11ec6ba421c74813fcf1261243b9e6ae3",
+   "branch": "master"
+  },
+  "PL-0_Compiler": {
+   "sha": "49420f13fb00f4402dd308ce27a52316b3506a4a",
+   "at": "2021-12-28T14:55:11Z",
+   "message": "md修改",
+   "url": "https://github.com/Gu-Haojia/PL-0_Compiler/commit/49420f13fb00f4402dd308ce27a52316b3506a4a",
+   "branch": "master"
+  },
+  "NUAA_OS_Lab": {
+   "sha": "d21eeafe64cde509709a7752b431596abdc74118",
+   "at": "2022-06-10T12:44:33Z",
+   "message": "Create README.md",
+   "url": "https://github.com/Gu-Haojia/NUAA_OS_Lab/commit/d21eeafe64cde509709a7752b431596abdc74118",
+   "branch": "master"
+  },
+  "Li-ion-Battery-RUL-Prediction": {
+   "sha": "d508cbe9edc4d82b9d0cfe542d2ea5ec2cdd6983",
+   "at": "2024-05-07T08:25:06Z",
+   "message": "Update Multi-Model.ipynb",
+   "url": "https://github.com/Gu-Haojia/Li-ion-Battery-RUL-Prediction/commit/d508cbe9edc4d82b9d0cfe542d2ea5ec2cdd6983",
+   "branch": "master"
+  },
+  "QRS-detector": {
+   "sha": "32db85148e4619a302ba671311637ef7d2f96fa8",
+   "at": "2024-12-16T14:16:28Z",
+   "message": "plot save",
+   "url": "https://github.com/Gu-Haojia/QRS-detector/commit/32db85148e4619a302ba671311637ef7d2f96fa8",
+   "branch": "main"
+  },
+  "Ai_Agent": {
+   "sha": "945817a93a6b9f8628798bd1fa746795ca934748",
+   "at": "2026-10-14T13:32:41Z",
+   "message": "refactor(tool): 重命名看图工具并更新说明",
+   "url": "https://github.com/Gu-Haojia/Ai_Agent/commit/945817a93a6b9f8628798bd1fa746795ca934748",
+   "branch": "main"
+  },
+  "Meru-Track": {
+   "sha": "0b4bd54b4bc43faf920184a5add6549406fafaae",
+   "at": "2026-06-04T00:27:55Z",
+   "message": "Release MeruTrack 1.0",
+   "url": "https://github.com/Gu-Haojia/Meru-Track/commit/0b4bd54b4bc43faf920184a5add6549406fafaae",
+   "branch": "main"
+  },
+  "XMonitor": {
+   "sha": "3fe5a8c3303fc68e22e1bec5d238a5a7de983d10",
+   "at": "2026-09-10T15:53:36Z",
+   "message": "feat(render): 同步视频和 GIF 角标",
+   "url": "https://github.com/Gu-Haojia/XMonitor/commit/3fe5a8c3303fc68e22e1bec5d238a5a7de983d10",
+   "branch": "main"
+  },
+  "lantale": {
+   "sha": "cb18a38cb9400d190725bb1f6265d3736eadf94e",
+   "at": "2026-08-29T16:33:00Z",
+   "message": "Set up reproducible signed Android releases",
+   "url": "https://github.com/Gu-Haojia/lantale/commit/cb18a38cb9400d190725bb1f6265d3736eadf94e",
+   "branch": "main"
+  },
+  "shinkansen-follow": {
+   "sha": "f5010988c22b4fd6cc4f6918e424ee1734cd89ed",
+   "at": "2026-09-05T06:55:04Z",
+   "message": "fix: fit panel to the visible viewport and start collapsed",
+   "url": "https://github.com/Gu-Haojia/shinkansen-follow/commit/f5010988c22b4fd6cc4f6918e424ee1734cd89ed",
+   "branch": "main"
+  },
+  "buo-dojo": {
+   "sha": "bba017c4cf7c6d0c6f087a0b49e4c9a5ed8ff1a7",
+   "at": "2026-09-07T08:29:42Z",
+   "message": "style: update X sharing caption and election hashtag",
+   "url": "https://github.com/Gu-Haojia/buo-dojo/commit/bba017c4cf7c6d0c6f087a0b49e4c9a5ed8ff1a7",
+   "branch": "main"
+  },
+  "RepArchive": {
+   "sha": "bd07816fcfa20ffe602af024e4aecce6b1bb6a6f",
+   "at": "2026-10-05T18:14:11Z",
+   "message": "Preserve chat senders and distinguish outgoing messages",
+   "url": "https://github.com/Gu-Haojia/RepArchive/commit/bd07816fcfa20ffe602af024e4aecce6b1bb6a6f",
+   "branch": "main"
+  }
  }
 }

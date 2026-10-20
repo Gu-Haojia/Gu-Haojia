@@ -36,6 +36,8 @@ import random
 import re
 import sys
 import time
+import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -752,6 +754,32 @@ def hd_avatar(raw):
     return raw, mime
 
 
+REPO_FIELDS = ('nodes{name defaultBranchRef{name target{... on Commit{oid messageHeadline committedDate url}}} '
+               'languages(first:10,orderBy:{field:SIZE,direction:DESC}){edges{size node{name}}}} '
+               'pageInfo{hasNextPage endCursor}')
+
+
+def fetch_repo_commits_rest(login, repos, token):
+    """无 GraphQL 凭据时，直接读取各项目默认分支头提交，不依赖有延迟的事件流。"""
+    commits = {}
+    for repo in repos:
+        if repo['name'].casefold() == login.casefold() or not repo.get('default_branch'):
+            continue
+        branch = urllib.parse.quote(repo['default_branch'], safe='')
+        try:
+            rows = api(f"https://api.github.com/repos/{login}/{repo['name']}/commits?sha={branch}&per_page=1", token)
+        except urllib.error.HTTPError as e:
+            if e.code == 409:  # 空仓库没有提交。
+                continue
+            raise
+        if rows:
+            row = rows[0]
+            commits[repo['name']] = {'sha': row['sha'], 'at': row['commit']['committer']['date'],
+                                    'message': row['commit']['message'].splitlines()[0],
+                                    'url': row['html_url'], 'branch': repo['default_branch']}
+    return commits
+
+
 def fetch(login, token):
     u = api(f"https://api.github.com/users/{login}", token)
     repos, page = [], 1
@@ -781,13 +809,14 @@ def fetch(login, token):
     except Exception as e:  # noqa: BLE001
         print("  ! 最近提交读取失败：", e)
     langs = {}
+    st['repo_commits'] = {}
     if token:
         d = gql('{user(login:"%s"){pullRequests{totalCount} issues{totalCount} '
                 'repositoriesContributedTo(contributionTypes:[COMMIT,ISSUE,PULL_REQUEST,REPOSITORY]){totalCount} '
                 'contributionsCollection{contributionYears totalCommitContributions '
                 'contributionCalendar{totalContributions weeks{contributionDays{date contributionCount}}}} '
-                'repositories(first:100,ownerAffiliations:OWNER,isFork:false,privacy:PUBLIC){nodes{languages(first:10,'
-                'orderBy:{field:SIZE,direction:DESC}){edges{size node{name}}}}}}}' % login, token)
+                'repositories(first:100,ownerAffiliations:OWNER,isFork:false,privacy:PUBLIC){%s}}}'
+                % (login, REPO_FIELDS), token)
         cc = d["contributionsCollection"]
         days = [[x["date"], x["contributionCount"]] for w in cc["contributionCalendar"]["weeks"]
                 for x in w["contributionDays"]]
@@ -802,12 +831,26 @@ def fetch(login, token):
                   contrib_all=sum(v["contributionCalendar"]["totalContributions"] for v in allc.values()),
                   prs=d["pullRequests"]["totalCount"], issues=d["issues"]["totalCount"],
                   contributed=d["repositoriesContributedTo"]["totalCount"], days=days, langs_source="graphql")
-        for nd in d["repositories"]["nodes"]:
+        connection = d['repositories']
+        nodes = list(connection['nodes'])
+        while connection['pageInfo']['hasNextPage']:
+            cursor = json.dumps(connection['pageInfo']['endCursor'])
+            connection = gql('{user(login:"%s"){repositories(first:100,after:%s,ownerAffiliations:OWNER,'
+                             'isFork:false,privacy:PUBLIC){%s}}}' % (login, cursor, REPO_FIELDS), token)['repositories']
+            nodes.extend(connection['nodes'])
+        for nd in nodes:
+            branch = nd.get('defaultBranchRef')
+            target = (branch or {}).get('target') or {}
+            if nd['name'] in st['repo_meta'] and target.get('oid') and target.get('committedDate'):
+                st['repo_commits'][nd['name']] = {
+                    'sha': target['oid'], 'at': target['committedDate'], 'message': target.get('messageHeadline') or '',
+                    'url': target.get('url') or '', 'branch': branch['name']}
             for e in nd["languages"]["edges"]:
                 v = langs.setdefault(e["node"]["name"], [0, 0])
                 v[0] += e["size"]
                 v[1] += 1
     else:  # 没有 token：用每个仓库的主语言和仓库体积粗略估计
+        st['repo_commits'] = fetch_repo_commits_rest(login, own, token)
         for r in own:
             if r["language"]:
                 v = langs.setdefault(r["language"], [0, 0])
@@ -841,7 +884,7 @@ def load_stats(cfg, offline):
         fresh["langs_source"] = "graphql"
     keep = {"followers", "repos", "created", "stars", "last_push", "commits", "contrib_year", "contrib_all",
             "prs", "issues", "contributed", "days", "langs_source", "langs", "avatar", "repo_meta",
-            "last_commit"}
+            "last_commit", "repo_commits"}
     st = {k: v for k, v in {**cache, **fresh}.items() if k in keep}
     CACHE.parent.mkdir(exist_ok=True)
     CACHE.write_text(json.dumps(st, ensure_ascii=False, indent=1))
@@ -873,7 +916,7 @@ def streaks(days):
 
 
 def load_config(path=None):
-    """一个项目目录配置同时驱动首页推荐和项目页。"""
+    """读取项目页清单；首页最新项目独立来自 GitHub 提交数据。"""
     path = Path(path or ROOT / "config.json")
     cfg = json.loads(path.read_text())
     if not isinstance(cfg, dict):
@@ -889,7 +932,7 @@ def resolve_projects(cfg, meta, now, ago):
     settings = cfg.get("projects")
     if settings is None:  # 兼容已有 config.json 的 featured 字段。
         picks = cfg.get("featured", [{"repo": k} for k, _ in sorted(meta.items(), key=lambda kv: -kv[1][0])[:4]])
-        settings = {"items": picks, "home_recommendation": picks[0]["repo"] if picks else None}
+        settings = {"items": picks}
     if not isinstance(settings, dict) or not isinstance(settings.get("items"), list):
         raise ValueError("projects.json: items 必须是项目数组")
     catalog = {}
@@ -917,10 +960,8 @@ def resolve_projects(cfg, meta, now, ago):
                          "stars": stars, "lang": item["language"] if item.get("language") is not None else lang,
                          "color": color, "desc": item["description"] if item.get("description") is not None else item.get("desc", desc),
                          "fresh": fresh, "ago": ago(pushed), "show_on_projects": visible}
-    choice = settings.get("home_recommendation")
-    if choice is not None and (not isinstance(choice, str) or choice not in catalog):
-        raise ValueError("projects.json: home_recommendation 必须引用 items 中的 repo，或用 null 隐藏推荐卡")
-    return [item for item in catalog.values() if item["show_on_projects"]], catalog.get(choice)
+    # 旧 home_recommendation 字段不再参与生成，也不能阻止 items 修改生效。
+    return [item for item in catalog.values() if item["show_on_projects"]]
 
 
 def derive(cfg, st):
@@ -955,7 +996,17 @@ def derive(cfg, st):
         k = (now.date() - t.date()).days
         return "今天" if k <= 0 else "昨天" if k == 1 else f"{k} 天前" if k < 60 else t.strftime("%Y/%m/%d")
 
-    featured, recommended = resolve_projects(cfg, meta, now, ago)
+    featured = resolve_projects(cfg, meta, now, ago)
+    latest_project = None
+    commits = [(name, c) for name, c in (st.get('repo_commits') or {}).items()
+               if name in meta and name.casefold() != cfg.get('github', '').casefold() and c.get('at') and c.get('sha')]
+    if commits:
+        name, commit = max(commits, key=lambda pair: (dt.datetime.fromisoformat(pair[1]['at'].replace('Z', '+00:00')), pair[0]))
+        at = dt.datetime.fromisoformat(commit['at'].replace('Z', '+00:00')).astimezone(tz)
+        latest_project = {'repo': name, 'name': name, 'stars': meta[name][0], 'lang': meta[name][1],
+                          'commit_sha': commit['sha'], 'commit_message': ' '.join((commit.get('message') or '').split()),
+                          'commit_url': commit.get('url') or '', 'commit_at': commit['at'],
+                          'commit_time': f"{ago(commit['at'])} {at:%H:%M}"}
     # 「正在培育」：最近一次提交的仓库（取不到推送事件时，退回最近推送的仓库）
     lc = st.get("last_commit") or {}
     if lc.get("repo") in meta:
@@ -976,7 +1027,7 @@ def derive(cfg, st):
         "streak": cur, "best": best, "d30": d30, "sum30": sum(vals30), "max30": max(vals30 + [0]),
         "rest30": sum(1 for k in vals30 if not k), "week_total": week_total,
         "last_md": f"{int(last_active[5:7])}/{int(last_active[8:10])}" if last_active else "—",
-        "cal": days[-35:], "featured": featured, "recommended": recommended, "active": active,
+        "cal": days[-35:], "featured": featured, "latest_project": latest_project, "active": active,
     }
 
 
@@ -1090,21 +1141,21 @@ def home(cfg, st, d):
                             w=W - 24 - tx_)
                  + "</g></g>")
 
-    # ── 右中：推荐项目 ──
-    top = d["recommended"]
+    # ── 右中：最新项目与默认分支最新提交（独立于 items） ──
+    top = d["latest_project"]
     if top:
         fx, fy, fw, fh = 772, 340, 350, 100
-        slug = LANG_SLUG.get(top["lang"] or "")
-        o.append(R(fx, fy + 4, fw, fh, 12, "#1A1433", extra=' opacity=".28"') + R(fx, fy, fw, fh, 12, "#fff", "#8E84A0", 1.5)
+        slug = LANG_SLUG.get(top['lang'] or '')
+        o.append('<g id="latest-project"><title>' + esc(f"{top['name']} · 最近提交 {top['commit_time']}") + '</title>'
+                 + R(fx, fy + 4, fw, fh, 12, "#1A1433", extra=' opacity=".28"') + R(fx, fy, fw, fh, 12, "#fff", "#8E84A0", 1.5)
                  + R(fx + 16, fy - 13, 108, 28, 14, lg([(0, "#FF8FC8"), (1, "#F2559A")]), "#fff", 2)
-                 + T(fx + 70, fy + 6, "推荐项目", 15, "#fff", "h", "middle")
-                 + T(fx + 20, fy + 54, top["name"], 32, TITLE, "h", w=fw - 40)
-                 + (brand(slug, fx + 30, fy + 78, 18) if slug else "")
-                 + T(fx + (46 if slug else 20), fy + 78 + 15 * .36, top["lang"] or "", 15, TEXT, "u")
-                 + item("coin", fx + fw - 20 - tw(f"× {top['stars'] if top['stars'] is not None else '—'}", 16, "u") - 18, fy + 78, 26)
-                 + T(fx + fw - 20, fy + 78 + 16 * .36, f"× {top['stars'] if top['stars'] is not None else '—'}", 16, TEXT, "u", "end"))
-        if top["fresh"]:
-            o.append(new_tag(fx + fw - 82, fy + 4, 20))
+                 + T(fx + 70, fy + 6, "最新项目", 15, "#fff", "h", "middle")
+                 + T(fx + 20, fy + 42, top["name"], 30, TITLE, "h", w=fw - 40)
+                 + (brand(slug, fx + 28, fy + 61, 16) if slug else '')
+                 + T(fx + (42 if slug else 20), fy + 65, top['lang'] or '', 13, TEXT, 'u', w=180)
+                 + item('coin', fx + fw - 65, fy + 61, 22)
+                 + T(fx + fw - 20, fy + 65, f"× {top['stars'] if top['stars'] is not None else '—'}", 13, TEXT, 'u', 'end', w=32)
+                 + T(fx + 20, fy + 88, f"最近提交 · {top['commit_time']}", 12.5, SUB, 'u', w=fw - 40) + '</g>')
 
     # ── 右下：原生 Produce 按钮 + 任务按钮（按原图尺寸显示，避免放大发糊） ──
     pcx, pcy, ps = 1032, 576, 148
@@ -1700,10 +1751,10 @@ def render(cfg, st, d):
 # ───────────────────────── README & 本地预览 ─────────────────────────
 
 
-def readme(cfg, d):
+def readme(cfg, d, revision):
     alt = f"{cfg['nickname']} 的闪耀色彩风格主页 · Lv.{d['level']} · 连续贡献 {d['streak']} 天"
     return f'''<!-- ✦ 本文件由 build.py 生成：配置 config.json / projects.json；python3 build.py 或 --offline --watch ✦ -->
-<p align="center"><img src="assets/{OUT.name}" width="100%" alt="{esc(alt)}"/></p>
+<p align="center"><img src="assets/{OUT.name}?v={revision}" width="100%" alt="{esc(alt)}"/></p>
 '''
 
 
@@ -1747,7 +1798,7 @@ def build_once(offline=False):
     svg = render(cfg, st, d)
     write_atomic(OUT, svg)
     print(f"  ✓ assets/{OUT.name}  ({len(svg.encode()) / 1024:.1f} KB，图像素材 {len(USED)} 张)")
-    md = readme(cfg, d)
+    md = readme(cfg, d, hashlib.sha256(svg.encode()).hexdigest()[:12])
     write_atomic(ROOT / "README.md", md)
     write_atomic(ROOT / "preview.html", preview(cfg, st, md))
     print(f"  ✓ README.md   Lv.{d['level']} · 正在培育 {(d['active'] or {}).get('name', '—')} · 连续 {d['streak']} 天（最长 {d['best']}）"

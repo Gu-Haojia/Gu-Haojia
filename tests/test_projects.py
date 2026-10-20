@@ -20,11 +20,14 @@ class ProjectConfigTests(unittest.TestCase):
     def derive(self, settings=None):
         return build.derive({'projects': settings if settings is not None else self.settings}, self.stats)
 
-    def test_home_choice_is_independent_of_project_order_and_visibility(self):
-        self.settings['items'][1]['show_on_projects'] = False
+    def test_removing_old_recommendation_does_not_block_item_edits(self):
+        self.settings['items'] = [{'repo': 'Alpha', 'title': '新标题'}]
         d = self.derive()
-        self.assertEqual(d['recommended']['repo'], 'Beta')
         self.assertEqual([x['repo'] for x in d['featured']], ['Alpha'])
+        self.assertEqual(d['featured'][0]['name'], '新标题')
+        svg, _ = build.projects(0, d)
+        self.assertIn('新标题', svg)
+        self.assertNotIn('Beta', svg)
 
     def test_metadata_is_automatic_and_only_explicit_fields_override(self):
         self.settings['items'][0].update(title='自定义标题', description='自己的介绍', language='Rust')
@@ -38,7 +41,7 @@ class ProjectConfigTests(unittest.TestCase):
     def test_empty_selection_does_not_fall_back_to_random_repos(self):
         d = self.derive({'home_recommendation': None, 'items': []})
         self.assertEqual(d['featured'], [])
-        self.assertIsNone(d['recommended'])
+        self.assertIsNone(d['latest_project'])
 
     def test_five_items_generate_a_third_row_without_mutating_data(self):
         self.stats['repo_meta'].update({f'Extra{i}': [0, 'Python', '说明', None] for i in range(3)})
@@ -60,9 +63,8 @@ class ProjectConfigTests(unittest.TestCase):
         self.assertEqual(item['desc'], '手写简介')
         self.assertEqual(item['ago'], '—')
 
-    def test_invalid_reference_color_duplicate_and_boolean_are_rejected(self):
+    def test_invalid_color_duplicate_and_boolean_are_rejected(self):
         cases = []
-        bad = copy.deepcopy(self.settings); bad['home_recommendation'] = 'Missing'; cases.append(bad)
         bad = copy.deepcopy(self.settings); bad['items'][0]['color'] = 'nope'; cases.append(bad)
         bad = copy.deepcopy(self.settings); bad['items'][0]['color'] = []; cases.append(bad)
         bad = copy.deepcopy(self.settings); bad['items'].append({'repo': 'alpha'}); cases.append(bad)
@@ -81,7 +83,7 @@ class ProjectConfigTests(unittest.TestCase):
     def test_invalid_config_keeps_last_generated_page(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            (root/'config.json').write_text(json.dumps({'projects': {'items': [], 'home_recommendation': 'Missing'}}))
+            (root/'config.json').write_text(json.dumps({'projects': {'items': [{'repo': 'Alpha', 'color': 'invalid'}]}}))
             out = root/'assets'/'shinycolors.svg'
             out.parent.mkdir()
             out.write_text('previous output')
