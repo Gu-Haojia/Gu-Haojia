@@ -2,7 +2,7 @@
  "followers": 4,
  "repos": 33,
  "stars": 25,
- "last_push": "2026-10-20T10:48:06Z",
+ "last_push": "2026-10-20T10:48:57Z",
  "commits": 756,
  "contrib_year": 575,
  "contrib_all": 1106,
@@ -1640,7 +1640,7 @@
    0,
    "Python",
    "✦ Shiny Colors 风格 GitHub 个人主页模板 · 动画 SVG · 自动统计与每日更新 · 无需服务器",
-   "2026-10-20T10:48:06Z"
+   "2026-10-20T10:48:57Z"
   ],
   "StateSimplify": [
    1,
@@ -1823,10 +1823,10 @@
    "branch": "main"
   },
   "shinycolors-profile-template": {
-   "sha": "634d5d2f1aaec47597e2f5a84b2edc3b5eda1473",
-   "at": "2026-10-20T10:48:04Z",
-   "message": "Remove old Hana from template and show all 28 characters in README",
-   "url": "https://github.com/Gu-Haojia/shinycolors-profile-template/commit/634d5d2f1aaec47597e2f5a84b2edc3b5eda1473",
+   "sha": "9b82d5078d0798d5a9c9813781acef149a12e8dd",
+   "at": "2026-10-20T10:48:56Z",
+   "message": "✦ refresh shiny profile",
+   "url": "https://github.com/Gu-Haojia/shinycolors-profile-template/commit/9b82d5078d0798d5a9c9813781acef149a12e8dd",
    "branch": "main"
   }
  },
