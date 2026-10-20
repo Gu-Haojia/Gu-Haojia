@@ -1,11 +1,11 @@
 {
  "followers": 4,
- "repos": 32,
+ "repos": 33,
  "stars": 25,
- "last_push": "2026-10-18T18:16:27Z",
- "commits": 751,
- "contrib_year": 569,
- "contrib_all": 1100,
+ "last_push": "2026-10-20T09:46:25Z",
+ "commits": 752,
+ "contrib_year": 571,
+ "contrib_all": 1102,
  "days": [
   [
    "2025-10-19",
@@ -1473,7 +1473,7 @@
   ],
   [
    "2026-10-20",
-   7
+   9
   ]
  ],
  "langs_source": "graphql",
@@ -1483,8 +1483,8 @@
    3
   ],
   "Python": [
-   2415395,
-   11
+   2553760,
+   12
   ],
   "QMake": [
    1052,
@@ -1635,6 +1635,12 @@
    "JavaScript",
    "新干线随行：沿保存的日本铁路曲线推算列车位置，一键同步网页 Geolocation 的 Tampermonkey 脚本。",
    "2026-09-05T06:55:05Z"
+  ],
+  "shinycolors-profile-template": [
+   0,
+   "Python",
+   "✦ Shiny Colors 风格 GitHub 个人主页模板 · 动画 SVG · 自动统计与每日更新 · 无需服务器",
+   "2026-10-20T09:46:25Z"
   ],
   "StateSimplify": [
    1,
@@ -1815,8 +1821,15 @@
    "message": "Preserve chat senders and distinguish outgoing messages",
    "url": "https://github.com/Gu-Haojia/RepArchive/commit/bd07816fcfa20ffe602af024e4aecce6b1bb6a6f",
    "branch": "main"
+  },
+  "shinycolors-profile-template": {
+   "sha": "9f8ee1bf2bba5c03f2b5fb2a928e4e42844a424b",
+   "at": "2026-10-20T09:46:19Z",
+   "message": "docs: keep MIT license text standard with scope in notices",
+   "url": "https://github.com/Gu-Haojia/shinycolors-profile-template/commit/9f8ee1bf2bba5c03f2b5fb2a928e4e42844a424b",
+   "branch": "main"
   }
  },
- "contrib_rolling_year": 779,
+ "contrib_rolling_year": 781,
  "contribution_year": 2026
 }
