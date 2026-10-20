@@ -18,12 +18,13 @@
 
 素材：assets/game 保留游戏原生背景和道具（© Bandai Namco Entertainment；中文 UI 来自 ShinyGroup/SCTranslationData 汉化图集），
 背景另有 AI 清晰度增强版，来源与处理记录见 assets/game/SOURCES.md；
-培育页羽那 Coding 立绘为 AI 二创，见 assets/illustrations/SOURCES.md；
+培育页 Coding 立绘为 AI 二创，支持固定角色和 random，见 assets/illustrations/SOURCES.md；
 页签、圆形菜单按钮、气泡、平板、等级条、Vo/Da/Vi/Me 徽章等部件照游戏样式用矢量重绘；金币 / 羽钻仍用原生图；
 字体为源样圆体（Resource Han Rounded，SIL OFL 1.1），构建时只保留用到的字，排版按它的真实字宽计算；
 技术栈图标来自 Simple Icons（CC0），统计图标来自 Octicons（MIT）。
 """
 
+import argparse
 import base64
 import datetime as dt
 import hashlib
@@ -404,15 +405,53 @@ def gimg(name, x, y, w=None, h=None, extra=""):
             f'{extra}/>')
 
 
-def hana_coding(y):
-    """用户选定的职场穿搭透明二创，整体上下平移，不改变人物比例。"""
-    data = base64.b64encode((ASSETS / "illustrations" / "hana-coding.webp").read_bytes()).decode()
-    DEFS["hanaArtwork"] = (f'<image id="hanaArtwork" width="1024" height="1536" '
-                           f'href="data:image/webp;base64,{data}"/>')
+def character_catalog():
+    return json.loads((ROOT / "data" / "characters.json").read_text(encoding="utf-8"))
+
+
+def selected_character(value):
+    if not isinstance(value, str):
+        raise ValueError("character 必须是角色 ID 或姓名；可运行 --list-characters")
+    normalized = "".join(value.split()).casefold()
+    for character in character_catalog():
+        names = [character["id"], character["name"], *character.get("aliases", [])]
+        if normalized in {"".join(name.split()).casefold() for name in names}:
+            return character
+    raise ValueError(f"未知角色 {value!r}；可运行 --list-characters 查看支持的角色")
+
+
+def config_with_character(cfg, value):
+    result = dict(cfg)
+    result["character"] = ("random" if isinstance(value, str) and value.strip().casefold() == "random"
+                           else selected_character(value)["id"])
+    return result
+
+
+def resolve_character_choice(cfg):
+    if str(cfg.get("character", "")).strip().casefold() == "random":
+        candidates = [row for row in character_catalog() if row.get("random", True)]
+        return config_with_character(cfg, random.choice(candidates)["id"])
+    return cfg
+
+
+def illustration_path(cfg):
+    path = ROOT / selected_character(cfg.get("character", "hana"))["file"]
+    if not path.is_file():
+        raise ValueError(f"立绘不存在：{path}")
+    return path
+
+
+def character_artwork(y, cfg):
+    """透明立绘使用固定画布，整体上下平移，不改变人物比例。"""
+    path = illustration_path(cfg)
+    # Catalog assets already share the 1024×1536 canvas; embed their original bytes.
+    data = base64.b64encode(path.read_bytes()).decode()
+    DEFS["characterArtwork"] = (f'<image id="characterArtwork" width="1024" height="1536" '
+                          f'href="data:image/webp;base64,{data}"/>')
     # 从电脑贴合桌沿的位置向下缓移，底部仍被前景桌面遮挡，避免露出悬空间隙。
-    return (f'<g id="hana-coding" transform="translate(0 {y+543})"><g>'
+    return (f'<g id="coding-character" transform="translate(0 {y+543})"><g>'
             + animT("translate", "0 0;0 5;0 0", MOTION["breath"])
-            + '<use href="#hanaArtwork" transform="translate(354 -467) scale(.419921875)"/></g></g>')
+            + '<use href="#characterArtwork" transform="translate(354 -467) scale(.419921875)"/></g></g>')
 
 
 def mug_steam(x, y):
@@ -1422,7 +1461,7 @@ def produce(y, cfg, st, d):
     # 人物位于桌后，桌沿遮住下半身；电脑底边落在桌沿，不再放独立相框。
     for sx, sy, sr, phase in [(280, 170, 4, 0), (832, 290, 5, 2.4), (300, 330, 3, 4.8)]:
         o.append(sparkle(sx, y+sy, sr, "#FFF8DC", MOTION["ambient"], phase))
-    o.append(hana_coding(y) + gimg("desk", 0, y + 543, W, 97) + "</g>")
+    o.append(character_artwork(y, cfg) + gimg("desk", 0, y + 543, W, 97) + "</g>")
 
     # 顶部：标题 + 「正在培育」信息条（最近一次推送的仓库：名字 / 简介 / 最近更新）
     o.append(header(y + 8, "培育"))
@@ -1753,6 +1792,7 @@ def compose(cfg, st, d):
 
 
 def render(cfg, st, d):
+    cfg = resolve_character_choice(cfg)
     defs, bg, body, H = compose(cfg, st, d)
     alt = f"{cfg['nickname']} · Lv.{d['level']} · 连续贡献 {d['streak']} 天"
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" '
@@ -1800,12 +1840,14 @@ body{{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 -apple-system,
 
 def write_atomic(path, text):
     pending = path.with_name(path.name + ".tmp")
-    pending.write_text(text)
+    pending.write_text(text, encoding="utf-8")
     pending.replace(path)
 
 
-def build_once(offline=False):
+def build_once(offline=False, *, character=None):
     cfg = load_config()
+    if character is not None:
+        cfg = config_with_character(cfg, character)
     print("✦ 读取数据…")
     st = load_stats(cfg, offline)
     d = derive(cfg, st)
@@ -1820,35 +1862,61 @@ def build_once(offline=False):
           f" · 近 30 天 {d['sum30']} 次")
 
 
-def watch_signature():
+def watch_signature(character=None):
     config = ROOT / "config.json"
+    raw = {}
     try:
-        raw = json.loads(config.read_text())
+        raw = json.loads(config.read_text(encoding="utf-8"))
         projects_file = raw.get("projects_file", "projects.json") if isinstance(raw, dict) else "projects.json"
         if not isinstance(projects_file, str):
             projects_file = "projects.json"
     except (OSError, ValueError):
         projects_file = "projects.json"
-    paths = [config, ROOT / projects_file, ASSETS / "illustrations" / "hana-coding.webp"]
+    paths = [config, ROOT / projects_file, ROOT / "data/characters.json"]
+    try:
+        cfg = raw if isinstance(raw, dict) else {}
+        if character is not None:
+            cfg = config_with_character(cfg, character)
+        if str(cfg.get("character", "")).strip().casefold() == "random":
+            # Watching must not draw another random character or rebuild by itself.
+            paths.extend(ROOT / row["file"] for row in character_catalog() if row.get("random", True))
+        else:
+            illustration = illustration_path(cfg)
+            if illustration is not None:
+                paths.append(illustration)
+    except (OSError, ValueError):
+        pass  # A temporary invalid edit is reported by the next build.
     return tuple((str(p), p.stat().st_mtime_ns if p.exists() else None) for p in paths)
 
 
 def main():
-    offline = "--offline" in sys.argv
-    if "--watch" not in sys.argv:
-        build_once(offline)
+    parser = argparse.ArgumentParser(description="Shiny Colors GitHub Profile")
+    parser.add_argument("--offline", action="store_true", help="使用缓存，不联网")
+    parser.add_argument("--strict-refresh", action="store_true", help="联网失败时退出")
+    parser.add_argument("--watch", action="store_true", help="监听配置和立绘变化")
+    parser.add_argument("--character", help="单次使用的角色 ID / 姓名 / random；不修改配置")
+    parser.add_argument("--list-characters", action="store_true", help="列出角色及随机池")
+    args = parser.parse_args()
+    if args.list_characters:
+        print("random    每次构建随机选择一位（不包含旧版羽那）")
+        for row in character_catalog():
+            suffix = " · 仅固定选择" if not row.get("random", True) else ""
+            print(f"{row['id']:8}  {row['name']}  ·  {row['unit']}{suffix}")
         return
-    print("✦ 自动构建已启动：保存 config.json / projects.json 后重建；Ctrl+C 退出", flush=True)
+    if not args.watch:
+        build_once(args.offline, character=args.character)
+        return
+    print("✦ 自动构建已启动：保存配置或立绘后重建；Ctrl+C 退出", flush=True)
     previous = None
     try:
         while True:
-            signature = watch_signature()
+            signature = watch_signature(args.character)
             if signature != previous:
                 previous = signature
                 try:
-                    build_once(offline)
-                except (OSError, ValueError) as e:
-                    print(f"  ! 配置尚未有效，保留已有页面，等待下次保存：{e}", flush=True)
+                    build_once(args.offline, character=args.character)
+                except (OSError, ValueError, RuntimeError) as e:
+                    print(f"  ! 保留已有页面，等待下次保存：{e}", flush=True)
             time.sleep(1)
     except KeyboardInterrupt:
         print("\n✦ 自动构建已停止")

@@ -97,5 +97,6 @@
     }
   ],
   "speaks": "中文 · 日语 · 英语",
-  "projects_file": "projects.json"
+  "projects_file": "projects.json",
+  "character": "hana_old"
 }

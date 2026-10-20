@@ -62,7 +62,7 @@ Star、推送时间自动来自 GitHub 数据；缓存中不存在的仓库显�
 python build.py --offline --watch
 ```
 
-保存 config.json、projects.json 或更新页面使用的 hana-coding.webp 后，约一秒内自动重新生成 assets/shinycolors.svg、README.md 和 preview.html。浏览器刷新即可看到新结果。Ctrl+C 结束监听。
+保存 config.json、projects.json 或更新当前角色立绘 后，约一秒内自动重新生成 assets/shinycolors.svg、README.md 和 preview.html。浏览器刷新即可看到新结果。Ctrl+C 结束监听。
 
 - `python build.py --offline`：只构建一次，使用已有 GitHub 缓存。
 - `python build.py`：联网刷新 GitHub 数据并构建。
@@ -81,7 +81,7 @@ python build.py --offline --watch
 - 培育场景：1.3 倍，44 秒一轮，最大移动 32×8px。
 - 保留轻微蒸汽、闪光和按钮呼吸。图表完整底线常驻，上层强调线每 6.4 秒重播。
 
-羽那采用用户选中的职场版，经内置 image_gen 清理发丝波纹；旧版保存在 assets/illustrations/hana-coding-original.png 与 .webp。清理版与完整编辑提示词见同目录 ARTWORK_AND_MOTION.md。
+当前角色 `hana_old` 沿用已选定的旧版职场羽那，文件为 `assets/illustrations/hana_old-coding.webp`。通过 `character` 切换到 `hana`、其他角色或 `random`；随机池不包含 `hana_old`，详见 [角色选择](CHARACTERS.md)。旧图的生成与清理过程见 [ARTWORK_AND_MOTION.md](ARTWORK_AND_MOTION.md)。
 
 ## 验证
 

@@ -11,7 +11,7 @@
 保存位置：
 
 - 原始透明 PNG：`/Users/guhaojia/Desktop/homepage/assets/illustrations/hana-coding.png`
-- 页面使用的无损 WebP：`/Users/guhaojia/Desktop/homepage/assets/illustrations/hana-coding.webp`
+- 页面使用的无损 WebP（角色 `hana_old`）：[`assets/illustrations/hana_old-coding.webp`](../assets/illustrations/hana_old-coding.webp)
 - 清理前备份：`/Users/guhaojia/Desktop/homepage/assets/illustrations/hana-coding-original.png` 与同名 `.webp`
 - 页面：`/Users/guhaojia/Desktop/homepage/assets/shinycolors.svg`
 - 构建代码：`/Users/guhaojia/Desktop/homepage/build.py`
