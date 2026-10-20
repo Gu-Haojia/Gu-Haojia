@@ -696,7 +696,7 @@ def panel(x, y, w, h, r=10, fill="#fff", op=1.0):
             + R(x, y, w, h, r, fill, LINE, 1.3, o))
 
 
-def balloon(kind, x, y, w, text, size=18, stroke="#fff"):
+def balloon(kind, x, y, w, text, size=18, stroke="#fff", tip=None):
     """按原生气泡轮廓重画：文字和边框都保持矢量，尺寸不受图集像素限制。"""
     colors = {"bal_blue": ("#49DAFF", "#00A9ED", "#1479AF"),
               "bal_green": ("#52EC70", "#04C932", "#158634"),
@@ -704,7 +704,12 @@ def balloon(kind, x, y, w, text, size=18, stroke="#fff"):
               "bal_orange": ("#FFD948", "#FF9D12", "#B86B14")}
     top, bot, edge = colors[kind]
     h, r = size + 18, (size + 18) / 2
-    path = (f'M{r} 0H{w-r}a{r} {r} 0 0 1 0 {h}H{w*.58+7}l3 8-13-8H{r}'
+    tail = f'H{w*.58+7}l3 8-13-8'
+    if tip is not None:
+        tx, ty = tip[0] - x, tip[1] - y
+        stem = min(max(tx, r + 8), w - r - 8)
+        tail = f'H{n(stem+7)}L{n(tx)} {n(ty)}L{n(stem-7)} {n(h)}'
+    path = (f'M{r} 0H{w-r}a{r} {r} 0 0 1 0 {h}{tail}H{r}'
             f'a{r} {r} 0 0 1 0-{h}Z')
     return (f'<g transform="translate({n(x)} {n(y)})">'
             f'<path d="{path}" transform="translate(0 2)" fill="#433C48" opacity=".2"/>'
@@ -780,7 +785,7 @@ def fetch_repo_commits_rest(login, repos, token):
     return commits
 
 
-def fetch(login, token):
+def fetch(login, token, timezone_offset=8):
     u = api(f"https://api.github.com/users/{login}", token)
     repos, page = [], 1
     while True:
@@ -820,14 +825,19 @@ def fetch(login, token):
         cc = d["contributionsCollection"]
         days = [[x["date"], x["contributionCount"]] for w in cc["contributionCalendar"]["weeks"]
                 for x in w["contributionDays"]]
-        now = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        tz = dt.timezone(dt.timedelta(hours=timezone_offset))
+        now = dt.datetime.now(tz).replace(microsecond=0)
+        # 首页保留滚动近一年；带年份的页面单独读取该自然年，跨年时也查询新年零值。
+        year_numbers = sorted(set(cc["contributionYears"]) | {now.year})
         years = " ".join(
-            f'y{y}:contributionsCollection(from:"{y}-01-01T00:00:00Z",'
-            f'to:"{now if y == max(cc["contributionYears"]) else f"{y}-12-31T23:59:59Z"}")'
-            f'{{contributionCalendar{{totalContributions}}}}' for y in cc["contributionYears"])
-        allc = gql('{user(login:"%s"){%s}}' % (login, years), token) if years else {}
+            f'y{y}:contributionsCollection(from:"{dt.datetime(y, 1, 1, tzinfo=tz).isoformat()}",'
+            f'to:"{(now if y == now.year else dt.datetime(y+1, 1, 1, tzinfo=tz) - dt.timedelta(microseconds=1)).isoformat()}")'
+            f'{{contributionCalendar{{totalContributions}}}}' for y in year_numbers)
+        allc = gql('{user(login:"%s"){%s}}' % (login, years), token)
         st.update(commits=cc["totalCommitContributions"],
-                  contrib_year=cc["contributionCalendar"]["totalContributions"],
+                  contrib_rolling_year=cc["contributionCalendar"]["totalContributions"],
+                  contrib_year=allc[f"y{now.year}"]["contributionCalendar"]["totalContributions"],
+                  contribution_year=now.year,
                   contrib_all=sum(v["contributionCalendar"]["totalContributions"] for v in allc.values()),
                   prs=d["pullRequests"]["totalCount"], issues=d["issues"]["totalCount"],
                   contributed=d["repositoriesContributedTo"]["totalCount"], days=days, langs_source="graphql")
@@ -873,7 +883,7 @@ def load_stats(cfg, offline):
         return cache
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
     try:
-        fresh = fetch(cfg["github"], token)
+        fresh = fetch(cfg["github"], token, cfg.get("timezone_offset", 8))
     except Exception as e:  # noqa: BLE001
         if "--strict-refresh" in sys.argv:
             raise RuntimeError("GitHub 数据刷新失败，保留已有缓存与页面") from e
@@ -883,6 +893,7 @@ def load_stats(cfg, offline):
         fresh["langs"] = cache["langs"]  # 别用粗略数据覆盖精确数据
         fresh["langs_source"] = "graphql"
     keep = {"followers", "repos", "created", "stars", "last_push", "commits", "contrib_year", "contrib_all",
+            "contrib_rolling_year", "contribution_year",
             "prs", "issues", "contributed", "days", "langs_source", "langs", "avatar", "repo_meta",
             "last_commit", "repo_commits"}
     st = {k: v for k, v in {**cache, **fresh}.items() if k in keep}
@@ -985,7 +996,8 @@ def derive(cfg, st):
     cur, best = streaks(days)
     d30 = days[-30:]
     last_active = next((dd for dd, k in reversed(days) if k), None)
-    week_total = sum(k for _d, k in days[-7:])
+    week_start = (now.date() - dt.timedelta(days=now.weekday())).isoformat()
+    week_total = sum(k for dd, k in days if week_start <= dd <= now.date().isoformat())
 
     meta = st.get("repo_meta") or {}
 
@@ -1022,7 +1034,7 @@ def derive(cfg, st):
 
     vals30 = [k for _d, k in d30]
     return {
-        "date": now.strftime("%Y/%m/%d"), "year": now.year,
+        "date": now.strftime("%Y/%m/%d"), "year": st.get("contribution_year", now.year),
         "langs": langs, "contrib": c, "level": lv, "lv_prog": (c - lv * lv) / ((lv + 1) ** 2 - lv * lv),
         "next_lv": (lv + 1) ** 2 - c, "score": score, "rank": RANKS[ri],
         "streak": cur, "best": best, "d30": d30, "sum30": sum(vals30), "max30": max(vals30 + [0]),
@@ -1109,7 +1121,7 @@ def home(cfg, st, d):
         o.append(svg_)
         lx0 += lwid + 8
     o.append(dotted(cx0 + 16, cx0 + cw - 16, cy0 + 256))
-    cols = [("git-commit", "提交", st.get("commits", 0)), ("git-pull-request", "PR", st.get("prs", 0)),
+    cols = [("git-commit", "近一年提交", st.get("commits", 0)), ("git-pull-request", "PR", st.get("prs", 0)),
             ("issue-opened", "Issue", st.get("issues", 0)), ("repo", "仓库", st.get("repos", 0))]
     colw = (cw - 32) / len(cols)
     for i, (ic, lab, val) in enumerate(cols):
@@ -1117,7 +1129,7 @@ def home(cfg, st, d):
         o.append(f'<circle cx="{n(x0 + 22)}" cy="{cy0 + 295}" r="17" fill="#F1ECFB" stroke="#CBBEE6" stroke-width="1.2"/>'
                  + octicon(ic, x0 + 22, cy0 + 295, 20, "#7B68B0")
                  + T(x0 + 46, cy0 + 296, f"{val:,}", 22, TITLE, "h", w=colw - 50)
-                 + T(x0 + 46, cy0 + 314, lab, 13, SUB, "u"))
+                 + T(x0 + 46, cy0 + 314, lab, 13, SUB, "u", w=colw - 48))
         if i:
             o.append(f'<path d="M{n(x0 - 2)} {cy0 + 274}V{cy0 + 318}" stroke="#D8D0E4" stroke-width="1.2"/>')
 
@@ -1166,7 +1178,8 @@ def home(cfg, st, d):
              + "</g></g>")
     o.append(f'<g transform="translate(882 600)"><g>{animT("scale", "1;1.025;1", MOTION["pulse"], 1.2)}'
              + home_action("mission", 112) + "</g></g>"
-             + f'<g>{animT("translate", "0 0;0 -4.5;0 0", MOTION["float"])}{red_badge(924, 556, str(d["week_total"]))}</g>')
+             + f'<g>{animT("translate", "0 0;0 -4.5;0 0", MOTION["float"])}'
+             + red_badge(911, 553, f"本周 {d['week_total']}") + '</g>')
     return "".join(o), H
 
 
@@ -1505,7 +1518,7 @@ def contrib_chart(d, x, y, w, h):
     pts = d["d30"] or [["", 0]]
     mx = max(d["max30"], 1)
     top = mx + (2 if mx < 6 else mx // 4)
-    x0, x1, base, ytop = x + 40, x + w - 16, y + h - 30, y + 10
+    x0, x1, base, ytop = x + 40, x + w - 16, y + h - 30, y + 28
     xy = [(x0 + (x1 - x0) * i / max(1, len(pts) - 1), base - (base - ytop) * k / top) for i, (_d, k) in enumerate(pts)]
     o = []
     for v in sorted({0, top // 2, top}):
@@ -1540,9 +1553,11 @@ def contrib_chart(d, x, y, w, h):
     if d["max30"]:
         i = max(range(len(pts)), key=lambda j: (pts[j][1], j))
         px, py = xy[i]
-        bx = min(max(px - 20, x0), x1 - 116)
-        o.append(f'<g>{animT("translate", "0 0;0 -4.5;0 0", MOTION["float"])}'
-                 + balloon("bal_yellow", bx, py - 62, 116, f"最高 {d['max30']} 次", 16) + "</g>")
+        bx = min(max(px - 58, x0), x1 - 116)
+        # 气泡本体避开边界，尖角仍固定指向真实最高点；不随浮动动画脱离曲线。
+        o.append('<g id="contrib-peak-label">'
+                 + balloon("bal_yellow", bx, py - 54, 116, f"最高 {d['max30']} 次", 16,
+                           tip=(px, py - 6)) + "</g>")
     px, py = xy[-1]
     o.append(f'<circle cx="{n(px)}" cy="{n(py)}" r="6" fill="none" stroke="{PINK}" stroke-width="2">'
              + anim("r", "5;10;5", MOTION["pulse"]) + anim("opacity", ".6;0;.6", MOTION["pulse"]) + "</circle>")

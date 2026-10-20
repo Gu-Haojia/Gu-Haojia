@@ -112,11 +112,13 @@ class CommitFetchTests(unittest.TestCase):
                                   'pageInfo': {'hasNextPage': True, 'endCursor': 'next-page'}}}
         second = {'repositories': {'nodes': [node('Beta', '2026-10-20T00:00:00Z')],
                                    'pageInfo': {'hasNextPage': False, 'endCursor': None}}}
-        with patch.object(build, 'api', side_effect=api), patch.object(build, 'gql', side_effect=[first, second]) as gql, \
+        year = build.dt.datetime.now(build.dt.timezone(build.dt.timedelta(hours=8))).year
+        annual = {f'y{year}': {'contributionCalendar': {'totalContributions': 0}}}
+        with patch.object(build, 'api', side_effect=api), patch.object(build, 'gql', side_effect=[first, annual, second]) as gql, \
              patch.object(build.urllib.request, 'urlopen', return_value=io.BytesIO(b'\x89PNG\r\n\x1a\n')):
             stats = build.fetch('Example', 'test-token')
         self.assertEqual(set(stats['repo_commits']), {'Alpha', 'Beta'})
-        self.assertIn('after:"next-page"', gql.call_args_list[1].args[0])
+        self.assertIn('after:"next-page"', gql.call_args_list[2].args[0])
         self.assertEqual(build.derive({'github': 'Example', 'projects': {'items': []}}, stats)['latest_project']['repo'], 'Beta')
 
     def test_rest_reads_default_branch_commit_without_requesting_profile_repo(self):
