@@ -19,12 +19,17 @@ class ChartPeakTests(unittest.TestCase):
                 px, py = points[index]
                 label = root.find(".//*[@id='contrib-peak-label']")
                 self.assertIsNotNone(label)
-                self.assertFalse(label.findall(".//animateTransform"), 'callout must stay attached while chart animates')
                 balloon = label.find("./g")
                 bx, by = map(float, re.search(r'translate\(([\d.-]+) ([\d.-]+)\)', balloon.get('transform')).groups())
-                path = balloon.find("./path[@stroke='#69616D']").get('d')
-                tx, ty = map(float, re.search(r'L([\d.-]+) ([\d.-]+)L', path).groups())
-                self.assertAlmostEqual(bx + tx, px, delta=.15)
+                shape = balloon.find(".//path[@stroke='#69616D']")
+                motion = label.find('./animateTransform')
+                self.assertIsNotNone(motion, 'keep the whole callout floating')
+                self.assertFalse(shape.findall('./animate'), 'the tail should not stretch')
+                tx, ty = map(float, re.search(r'L([\d.-]+) ([\d.-]+)L', shape.get('d')).groups())
+                offsets = [tuple(map(float, xy.split())) for xy in motion.get('values').split(';')]
+                self.assertLess(min(dy for dx, dy in offsets), 0)
+                for dx, dy in offsets:
+                    self.assertAlmostEqual(bx + dx + tx, px, delta=.15)
                 self.assertAlmostEqual(by + ty, py - 6, delta=.15)
                 self.assertGreaterEqual(bx, points[0][0])
                 self.assertLessEqual(bx + 116, points[-1][0])

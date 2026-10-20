@@ -1126,12 +1126,12 @@ def home(cfg, st, d):
     colw = (cw - 32) / len(cols)
     for i, (ic, lab, val) in enumerate(cols):
         x0 = cx0 + 16 + i * colw
-        o.append(f'<circle cx="{n(x0 + 22)}" cy="{cy0 + 295}" r="17" fill="#F1ECFB" stroke="#CBBEE6" stroke-width="1.2"/>'
-                 + octicon(ic, x0 + 22, cy0 + 295, 20, "#7B68B0")
-                 + T(x0 + 46, cy0 + 296, f"{val:,}", 22, TITLE, "h", w=colw - 50)
-                 + T(x0 + 46, cy0 + 314, lab, 13, SUB, "u", w=colw - 48))
+        o.append(f'<circle cx="{n(x0 + 22)}" cy="{cy0 + 289}" r="17" fill="#F1ECFB" stroke="#CBBEE6" stroke-width="1.2"/>'
+                 + octicon(ic, x0 + 22, cy0 + 289, 20, "#7B68B0")
+                 + T(x0 + 46, cy0 + 292, f"{val:,}", 22, TITLE, "h", w=colw - 50)
+                 + T(x0 + colw / 2, cy0 + 322, lab, 13, SUB, "u", "middle", w=colw - 12))
         if i:
-            o.append(f'<path d="M{n(x0 - 2)} {cy0 + 274}V{cy0 + 318}" stroke="#D8D0E4" stroke-width="1.2"/>')
+            o.append(f'<path d="M{n(x0 - 2)} {cy0 + 274}V{cy0 + 326}" stroke="#D8D0E4" stroke-width="1.2"/>')
 
     # ── 左下：对话框（打字机效果） ──
     dx, dy, dw, dh = 16, 560, 684, 106
@@ -1554,8 +1554,9 @@ def contrib_chart(d, x, y, w, h):
         i = max(range(len(pts)), key=lambda j: (pts[j][1], j))
         px, py = xy[i]
         bx = min(max(px - 58, x0), x1 - 116)
-        # 气泡本体避开边界，尖角仍固定指向真实最高点；不随浮动动画脱离曲线。
+        # 气泡整体保持轻微浮动；尖角横向对齐最高点，靠边时只调整本体位置。
         o.append('<g id="contrib-peak-label">'
+                 + animT("translate", "0 0;0 -4.5;0 0", MOTION["float"])
                  + balloon("bal_yellow", bx, py - 54, 116, f"最高 {d['max30']} 次", 16,
                            tip=(px, py - 6)) + "</g>")
     px, py = xy[-1]
