@@ -2,10 +2,10 @@
  "followers": 4,
  "repos": 33,
  "stars": 26,
- "last_push": "2026-10-26T13:59:08Z",
- "commits": 712,
- "contrib_year": 585,
- "contrib_all": 1116,
+ "last_push": "2026-10-28T12:30:10Z",
+ "commits": 713,
+ "contrib_year": 586,
+ "contrib_all": 1117,
  "days": [
   [
    "2025-10-26",
@@ -1474,6 +1474,10 @@
   [
    "2026-10-27",
    0
+  ],
+  [
+   "2026-10-28",
+   1
   ]
  ],
  "langs_source": "graphql",
@@ -1483,7 +1487,7 @@
    3
   ],
   "Python": [
-   2613966,
+   2624834,
    12
   ],
   "QMake": [
@@ -1538,7 +1542,7 @@
    4,
    "Python",
    "支持OneBot 11协议的QQ平台AI Agent，包含大量工具支持。",
-   "2026-10-26T13:59:08Z"
+   "2026-10-28T12:30:10Z"
   ],
   "ASM-Code": [
    1,
@@ -1770,10 +1774,10 @@
    "branch": "main"
   },
   "Ai_Agent": {
-   "sha": "1b3d0f0933925714052a0a5274980f5cef94a796",
-   "at": "2026-10-26T13:58:27Z",
-   "message": "fix(xmonitor): 优先遵循 Vertex 认证开关",
-   "url": "https://github.com/Gu-Haojia/Ai_Agent/commit/1b3d0f0933925714052a0a5274980f5cef94a796",
+   "sha": "7c3398b0d8e34762dbdadce4269cd79f4b67ae2f",
+   "at": "2026-10-28T12:26:29Z",
+   "message": "fix(qq): 支持绝对路径图片回复",
+   "url": "https://github.com/Gu-Haojia/Ai_Agent/commit/7c3398b0d8e34762dbdadce4269cd79f4b67ae2f",
    "branch": "main"
   },
   "Meru-Track": {
@@ -1826,6 +1830,6 @@
    "branch": "main"
   }
  },
- "contrib_rolling_year": 741,
+ "contrib_rolling_year": 742,
  "contribution_year": 2026
 }
