@@ -2,10 +2,10 @@
  "followers": 4,
  "repos": 33,
  "stars": 26,
- "last_push": "2026-10-28T12:30:10Z",
- "commits": 705,
- "contrib_year": 586,
- "contrib_all": 1117,
+ "last_push": "2026-11-05T03:27:52Z",
+ "commits": 706,
+ "contrib_year": 587,
+ "contrib_all": 1118,
  "days": [
   [
    "2025-11-02",
@@ -1478,6 +1478,14 @@
   [
    "2026-11-04",
    0
+  ],
+  [
+   "2026-11-05",
+   1
+  ],
+  [
+   "2026-11-06",
+   0
   ]
  ],
  "langs_source": "graphql",
@@ -1487,7 +1495,7 @@
    3
   ],
   "Python": [
-   2624834,
+   2625086,
    12
   ],
   "QMake": [
@@ -1542,7 +1550,7 @@
    4,
    "Python",
    "支持OneBot 11协议的QQ平台AI Agent，包含大量工具支持。",
-   "2026-10-28T12:30:10Z"
+   "2026-11-05T03:27:52Z"
   ],
   "ASM-Code": [
    1,
@@ -1774,10 +1782,10 @@
    "branch": "main"
   },
   "Ai_Agent": {
-   "sha": "7c3398b0d8e34762dbdadce4269cd79f4b67ae2f",
-   "at": "2026-10-28T12:26:29Z",
-   "message": "fix(qq): 支持绝对路径图片回复",
-   "url": "https://github.com/Gu-Haojia/Ai_Agent/commit/7c3398b0d8e34762dbdadce4269cd79f4b67ae2f",
+   "sha": "ea2d51ecf12344d45ba9328c98cd025d1bb9c472",
+   "at": "2026-11-05T03:05:44Z",
+   "message": "feat(image): 升级 OpenAI 生图模型至 2.6",
+   "url": "https://github.com/Gu-Haojia/Ai_Agent/commit/ea2d51ecf12344d45ba9328c98cd025d1bb9c472",
    "branch": "main"
   },
   "Meru-Track": {
@@ -1830,6 +1838,6 @@
    "branch": "main"
   }
  },
- "contrib_rolling_year": 734,
+ "contrib_rolling_year": 735,
  "contribution_year": 2026
 }
